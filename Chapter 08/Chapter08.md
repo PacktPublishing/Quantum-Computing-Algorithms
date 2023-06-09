@@ -246,5 +246,5 @@ circ.append(ctrl, qargs=[0, 1, 3])
 
 circ.h([0, 1, 2])
 
-display(circ.draw('latex'))
+display(circ.draw('latex')) 
 ```
