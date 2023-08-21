@@ -2,7 +2,8 @@
 import numpy as np
 import random
 from qiskit import QuantumCircuit, QuantumRegister, \
-    ClassicalRegister, IBMQ, execute
+    ClassicalRegister, execute
+from qiskit import Aer
 from qiskit.result import marginal_counts
 ```
 
@@ -56,8 +57,8 @@ display(circ.draw('latex', cregbundle=False))
 
 
 ```python
-provider = IBMQ.load_account()
-device = provider.get_backend('ibmq_qasm_simulator')
+device = Aer.get_backend('qasm_simulator')
+
 shots = 1000
 job = execute(circ, backend=device, shots=shots)
 print(job.job_id())
@@ -69,7 +70,7 @@ number_of_0s = counts_m.get('0')
 number_of_1s = counts_m.get('1') 
 alpha = np.sqrt(number_of_0s / shots)
 beta = np.sqrt(number_of_1s / shots)
-print("|\u03C8> ({:.4f}, {:.4f})".format(alpha, beta))
+print("|\u03C8\u27E9 ({:.4f}, {:.4f})".format(alpha, beta))
 ```
 
 
