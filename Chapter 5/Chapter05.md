@@ -1,7 +1,10 @@
+### Qiskit code for the BB84 algorithm
+
+
 ```python
 import random
 from qiskit import QuantumCircuit, QuantumRegister, \
-    ClassicalRegister, IBMQ, execute
+    ClassicalRegister, Aer, execute
 
 NUMBER_OF_CIRCUITS = 100
 DOES_EVE_EXIST = False
@@ -21,7 +24,6 @@ def create_registers(eve_exists):
     else:
         circ = QuantumCircuit(alice_q, bob_q, bob_c)
     return circ
-
 ```
 
 
@@ -36,10 +38,8 @@ def setup_alice(circ):
         circ.h(alice_q)
 
     return circ
-```
 
 
-```python
 def setup_bob(circ):
     bob_q = circ.qubits[1]
     bob_c = circ.clbits[0]
@@ -49,10 +49,8 @@ def setup_bob(circ):
 
     circ.measure(bob_q, bob_c)
     return circ
-```
 
 
-```python
 def setup_eve(circ):
     bob_q = circ.qubits[1]
     eve_c = circ.clbits[1]
@@ -85,29 +83,19 @@ def make_new_circuit(eve_exists):
 
 
 ```python
-def had_agreement(circ):
-    gate_counts = circ.count_ops() 
-    return not('h' in gate_counts and gate_counts['h'] == 1)
+def create_circuits(how_many, does_eve_exist):
+    circuits = []
+    for i in range(how_many):
+        circuits.append(make_new_circuit(does_eve_exist)) 
+    return circuits
 ```
 
 
 ```python
-def alice_bit_value(circ):
-    return 1 if 'x' in circ.count_ops() else 0
-```
-
-
-```python
-def bob_bit_value(circ, memory):
-    return memory[0][0]
-```
-
-
-```python
-def bit_value_agreement(circ, result):
-    memory = result.get_memory(circ)
-    return alice_bit_value(circ) == int(
-        bob_bit_value(circ, memory))
+def run_the_job(circuits):
+    device = Aer.get_backend('qasm_simulator')
+    job = execute(circuits, backend=device, shots=1, memory=True)
+    return job.result()
 ```
 
 
@@ -122,6 +110,12 @@ def print_alice_bits(circuits):
 
 
 ```python
+def bob_bit_value(circ, memory):
+    return memory[0][0]
+```
+
+
+```python
 def print_bob_bits(circuits, result):
     print('bob bits  : ', end='')
     for circ in circuits:
@@ -132,21 +126,9 @@ def print_bob_bits(circuits, result):
 
 
 ```python
-def create_circuits(how_many, does_eve_exist):
-    circuits = []
-    for i in range(how_many):
-        circuits.append(make_new_circuit(does_eve_exist)) 
-    return circuits
-```
-
-
-```python
-def run_the_job(circuits):
-    provider = IBMQ.load_account()
-    device = provider.get_backend('ibmq_qasm_simulator')
-    job = execute(circuits, backend=device, shots=1,
-                  memory=True)
-    return job.result()
+def had_agreement(circ):
+    gate_counts = circ.count_ops()
+    return not ('h' in gate_counts and gate_counts['h'] == 1)
 ```
 
 
@@ -162,6 +144,20 @@ def print_had_agreements(circuits):
             print(' ', end='')
     print('')
     return number_of_agreements
+```
+
+
+```python
+def alice_bit_value(circ):
+    return 1 if 'x' in circ.count_ops() else 0
+```
+
+
+```python
+def bit_value_agreement(circ, result):
+    memory = result.get_memory(circ)
+    return alice_bit_value(circ) == int(
+        bob_bit_value(circ, memory))
 ```
 
 
@@ -193,8 +189,7 @@ def print_bit_agreements(circuits, result,
 
 
 ```python
-def print_key(circuits, number_of_circuits,
-              how_many_for_testing):
+def print_key(circuits, number_of_circuits, how_many_for_testing):
     print('key       :', end='')
     for i in range(how_many_for_testing + 1):
         print(' ', end='')
@@ -225,6 +220,45 @@ how_many_for_testing, is_eve_detected = \
 if is_eve_detected:                                    # 7
     print('INTRUDER ALERT!')
 else:
-    print_key (circuits, NUMBER_OF_CIRCUITS,
-               how_many_for_testing)      
+    print_key(circuits, NUMBER_OF_CIRCUITS,
+              how_many_for_testing) 
+```
+
+### Question 6
+
+
+```python
+from qiskit import QuantumRegister, QuantumCircuit
+from math import pi
+import random
+alice_q = QuantumRegister(1, 'alice_q')
+bob_q = QuantumRegister(1, 'bob_q')
+circ = QuantumCircuit(alice_q, bob_q)
+circ.ry(pi/(random.uniform(2, 20)), alice_q[0])
+circ.cnot(0, 1)
+circ.measure_all()
+display(circ.draw('latex'))
+```
+
+### Question 7
+
+
+```python
+def setup_eve(circ):
+    bob_q = circ.qubits[1]
+    eve_c = circ.clbits[1]
+    
+    has_had = random.getrandbits(1)
+    circ.barrier()
+    if has_had:
+        circ.h(bob_q)
+    circ.measure(bob_q, eve_c)
+    if has_had:
+        circ.h(bob_q)
+    circ.barrier()
+    return circ
+
+def had_agreement(circ):
+    gate_counts = circ.count_ops()
+    return not ('h' in gate_counts and gate_counts['h'] % 2 == 1)
 ```

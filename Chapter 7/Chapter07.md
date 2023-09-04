@@ -1,11 +1,10 @@
-### Phase Kickback
+### Phase kickback
 
 
 ```python
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import Statevector
-from qiskit.visualization \
-    import plot_bloch_multivector
+from qiskit.visualization import plot_bloch_multivector
 
 circ = QuantumCircuit(2)
 circ.x(1)
@@ -14,7 +13,7 @@ circ.h(1)
 display(circ.draw('latex'))
 
 state = Statevector(circ)
-display(plot_bloch_multivector(state))
+display(plot_bloch_multivector(state, reverse_bits=True))
 ```
 
 
@@ -22,15 +21,39 @@ display(plot_bloch_multivector(state))
 circ.cnot(0, 1)
 display(circ.draw('latex'))
 state = Statevector(circ)
-display(plot_bloch_multivector(state))
+display(plot_bloch_multivector(state, reverse_bits=True))
 ```
 
-### Deutsch's Algorithm
+### When does phase kickback kick in?
 
 
 ```python
-from qiskit import QuantumCircuit, execute
-from qiskit_ibm_provider import IBMProvider
+circ = QuantumCircuit(2)
+circ.h(0)
+circ.x(1)
+#circ.cz(0, 1) # Controlled Z gate
+
+display(circ.draw('latex'))
+state = Statevector(circ)
+display(plot_bloch_multivector(state, reverse_bits=True))
+```
+
+
+```python
+circ = QuantumCircuit(2)
+circ.h([0, 1])
+#circ.cnot(0, 1)
+
+display(circ.draw('latex'))
+state = Statevector(circ)
+display(plot_bloch_multivector(state, reverse_bits=True))
+```
+
+### Coding Deutsch's algorithm
+
+
+```python
+from qiskit import QuantumCircuit, Aer, execute
 from enum import Enum
 ```
 
@@ -88,8 +111,7 @@ display(circ.draw('latex'))
 
 
 ```python
-provider = IBMProvider()
-device = provider.get_backend('ibmq_qasm_simulator')
+device = Aer.get_backend('qasm_simulator')
 
 shots = 1
 job = execute(circ, backend=device, shots=shots)
@@ -111,7 +133,7 @@ else:
     print("Results aren't conclusive")
 ```
 
-### Exercise 5
+### Question 5
 
 
 ```python
@@ -144,4 +166,9 @@ circ.barrier()
 circ.h(0)
 circ.measure(0, 0)
 display(circ.draw('latex'))
+```
+
+
+```python
+
 ```

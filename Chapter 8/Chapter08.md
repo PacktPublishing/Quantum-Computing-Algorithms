@@ -1,9 +1,8 @@
-### Grover's algorithm with matrices
+### Coding Grover's algorithm with matrices
 
 
 ```python
-from qiskit import QuantumCircuit, execute
-from qiskit_ibm_provider import IBMProvider
+from qiskit import QuantumCircuit, Aer, execute
 from qiskit.visualization import plot_histogram
 ```
 
@@ -39,7 +38,6 @@ flip_matrix = [
 ]
 flip = QuantumCircuit(3)
 flip.unitary(flip_matrix, qubits=[0, 1, 2], label='flip')
-
 h3 = QuantumCircuit(3)
 h3.h([0, 1, 2])
 
@@ -55,8 +53,8 @@ grover_iterate = oracle.compose(diffuser)
 
 
 ```python
-circ = QuantumCircuit(4, 3) # We use the fourth 
-                            #   qubit later in this chapter.
+circ = QuantumCircuit(4, 3) # We use the fourth qubit
+                            #    later in this chapter.
 circ.h([0, 1, 2])
 circ.barrier()
 circ = circ.compose(grover_iterate).compose(grover_iterate)
@@ -66,8 +64,7 @@ display(circ.draw('latex'))
 
 
 ```python
-provider = IBMProvider()
-device = provider.get_backend('ibmq_qasm_simulator') 
+device = Aer.get_backend('qasm_simulator') 
 job = execute(circ,backend = device,shots = 1000)
 print(job.job_id())
 
@@ -78,7 +75,18 @@ print(counts)
 display(plot_histogram(counts))
 ```
 
-### Grover's algorithm with high-level functions
+### When to use Grover's algorithm
+
+
+```python
+x = float(input())
+if x**5 - 2*(x**4) + 4*(x**3) - 8*(x**2) + 3*x - 6 == 0:
+    print(1)
+else:
+    print(-1)
+```
+
+### Coding Grover's algorithm with high-level functions
 
 
 ```python
@@ -87,16 +95,22 @@ pip install tweedledum
 
 
 ```python
+pip install qiskit_algorithms
+```
+
+
+```python
 from qiskit.circuit.library.phase_oracle import PhaseOracle
-from qiskit.algorithms import AmplificationProblem
-from qiskit.algorithms import Grover
+from qiskit_algorithms import AmplificationProblem, Grover
 from qiskit.tools.visualization import plot_histogram
 ```
 
 
 ```python
-expression = \
-    '(sausage & ~anchovies & pineapple) & (mushrooms | anchovies)'
+expression = ('(sausage & ~anchovies & pineapple)' \
+              ' & (mushrooms | anchovies)')
+print(expression)
+
 oracle = PhaseOracle(expression)
 problem = AmplificationProblem(oracle)
 grover = Grover(iterations=2) 
@@ -107,12 +121,10 @@ display(circ.draw('latex'))
 
 
 ```python
-from qiskit import execute
-from qiskit_ibm_provider import IBMProvider
+from qiskit import Aer, execute
 from qiskit.visualization import plot_histogram
 
-provider = IBMProvider()
-device = provider.get_backend('ibmq_qasm_simulator') 
+device = Aer.get_backend('qasm_simulator') 
 
 job = execute(circ,backend = device, shots = 1000)
 print(job.job_id())
@@ -124,7 +136,7 @@ print(counts)
 display(plot_histogram(counts))
 ```
 
-### Grover's algorithm with quantum gates
+### Coding Grover's algorithm with quantum gates
 
 
 ```python
@@ -158,7 +170,7 @@ diffuser.barrier()
 display(diffuser.draw('latex'))
 ```
 
-### Exercise 3
+### Question 3
 
 
 ```python
@@ -180,42 +192,19 @@ print(entry)
 oracle_matrix[entry][entry] = -1
 
 oracle = QuantumCircuit(3)
-oracle.unitary(oracle_matrix, 
-               qubits=[0, 1, 2], label='oracle')
+oracle.unitary(oracle_matrix, qubits=[0, 1, 2], label='oracle')
 oracle.barrier()
 display(oracle.draw('latex'))
 ```
 
-### Exercise 5
+### Question 7
 
 
 ```python
-from qiskit import QuantumCircuit
-from qiskit import Aer
-from numpy import real
+# ((m | t) &  ~n) &   ((t | n)  & ~m)
+# (~~(m | t)  & ~n) & (~~(t | n)  & ~m)
+# (~(~m & ~t) & ~n) & (~(~t & ~n) & ~m)
 
-def matrix_reals(m):
-    return list(map(lambda x: list(map(real, x)), m))
-
-circ = QuantumCircuit(3)
-circ.x(2)
-circ.h(2)
-circ.barrier()
-circ.toffoli(0, 1, 2)
-display(circ.draw('latex'))
-device = Aer.get_backend('unitary_simulator')
-job = execute(circ,backend = device,shots = 1)
-matrix = job.result().get_unitary(circ, decimals=1)
-print('[')
-for row in matrix.data:
-    print(list(map(real, row)))
-print(']')
-```
-
-### Exercise 7
-
-
-```python
 from qiskit import QuantumRegister, QuantumCircuit
 from qiskit.circuit.library.standard_gates import XGate 
 
@@ -247,4 +236,9 @@ circ.append(ctrl, qargs=[0, 1, 3])
 circ.h([0, 1, 2])
 
 display(circ.draw('latex'))
+```
+
+
+```python
+
 ```
