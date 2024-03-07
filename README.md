@@ -45,6 +45,9 @@ With the following software and hardware list you can run all code files present
 | 1-10 | IBM Qiskit | A modern web browser running on any operating system |
 | 1-10 | Quantum computers on the IBM cloud |  |
 
+## Errata
+* All errata for the book can be found [here](https://users.drew.edu/bburd/quantum/errata.html).
+
 ### Related products
 * A Practical Guide to Quantum Machine Learning and Quantum Optimization [[Packt]](https://www.packtpub.com/product/a-practical-guide-to-quantum-machine-learning-and-quantum-optimization/9781804613832?utm_source=github&utm_medium=repository&utm_campaign=9781804613832) [[Amazon]](https://www.amazon.com/dp/1804613835)
 
